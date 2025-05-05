@@ -1,5 +1,6 @@
 package com.sharks.users_service.services.impl;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,21 +16,27 @@ import com.sharks.users_service.services.UserService;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    private JwtUtils jwtUtils;
+    private final AmqpTemplate amqpTemplate;
 
-    private UserService userService;
+    private final JwtUtils jwtUtils;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserService userService) {
+    private final UserService userService;
+
+    public AuthServiceImpl(AuthenticationManager authenticationManager, AmqpTemplate amqpTemplate, JwtUtils jwtUtils,
+            UserService userService) {
         this.authenticationManager = authenticationManager;
+        this.amqpTemplate = amqpTemplate;
         this.jwtUtils = jwtUtils;
         this.userService = userService;
     }
 
     @Override
     public UserDTO register(NewUser newUser) {
-        return userService.createUser(newUser);
+        UserDTO userDTO = userService.createUser(newUser);
+        amqpTemplate.convertAndSend("email-exchange", "user.registration", userDTO);
+        return userDTO;
     }
 
     @Override

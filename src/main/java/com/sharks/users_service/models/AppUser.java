@@ -21,7 +21,11 @@ public class AppUser {
 
     @NonNull
     @Column(nullable = false, unique = true)
-    private String username, email;
+    private String username;
+
+    @NonNull
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @NonNull
     @Column(nullable = false)

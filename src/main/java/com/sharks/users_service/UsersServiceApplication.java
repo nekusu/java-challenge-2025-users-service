@@ -20,9 +20,10 @@ public class UsersServiceApplication {
 	@Bean
 	public CommandLineRunner createAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
-			if (userRepository.existsByUsername("admin"))
+			String adminUsername = "admin";
+			if (userRepository.existsByUsername(adminUsername))
 				return;
-			AppUser adminUser = new AppUser("admin", "admin@email.com", "admin");
+			AppUser adminUser = new AppUser(adminUsername, "admin@email.com", "admin");
 			adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
 			adminUser.setRole(RoleType.ADMIN);
 			userRepository.save(adminUser);
